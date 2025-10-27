@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_USERNAME=${DB_USERNAME:-user}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - DB_DATABASE=${DB_DATABASE:-articles_db}
+  db:
+    image: mysql:8
+    restart: always
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-articles_db}
+      MYSQL_USER: ${MYSQL_USER:-user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secret}
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -u ${MYSQL_USER:-user} -p${MYSQL_PASSWORD:-secret} || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - $HOME/Data/mysql:/var/lib/mysql
