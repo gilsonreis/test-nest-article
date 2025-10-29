@@ -7,4 +7,9 @@ export interface UsersRepository {
   create(
     data: Pick<UserEntity, 'name' | 'email' | 'password' | 'role'>,
   ): Promise<UserEntity>;
+  findMany(params: {
+    search?: string;
+    page: number;
+    perPage: number;
+  }): Promise<{ items: UserEntity[]; total: number }>;
 }
