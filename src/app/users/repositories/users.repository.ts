@@ -7,4 +7,15 @@ export interface UsersRepository {
   create(
     data: Pick<UserEntity, 'name' | 'email' | 'password' | 'role'>,
   ): Promise<UserEntity>;
+  findById(id: number): Promise<UserEntity | null>;
+  update(
+    id: number,
+    changes: Partial<Pick<UserEntity, 'name' | 'email' | 'password' | 'role'>>,
+  ): Promise<UserEntity>;
+  delete(id: number): Promise<void>;
+  findMany(params: {
+    search?: string;
+    page: number;
+    perPage: number;
+  }): Promise<{ items: UserEntity[]; total: number }>;
 }
