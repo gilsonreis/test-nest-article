@@ -11,13 +11,11 @@ export class CreateArticlesTable1761540712517 implements MigrationInterface {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         CONSTRAINT fk_articles_user FOREIGN KEY (user_id) REFERENCES users(id)
-      );
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
-      DROP TABLE IF EXISTS articles;
-    `);
+    await queryRunner.query(`DROP TABLE IF EXISTS articles;`);
   }
 }

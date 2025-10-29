@@ -13,8 +13,6 @@ export class CreatePermissionsTable1761541021222 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
-      DROP TABLE IF EXISTS permissions;
-    `);
+    await queryRunner.query(`DROP TABLE IF EXISTS permissions;`);
   }
 }

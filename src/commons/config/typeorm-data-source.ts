@@ -1,8 +1,13 @@
 import 'reflect-metadata';
-import 'dotenv/config';
+import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 import { typeormOptions } from './typeorm-options';
 
-console.log(typeormOptions());
+ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: ['.env', '.env.local'],
+  expandVariables: true,
+  cache: true,
+});
 
 export default new DataSource(typeormOptions());

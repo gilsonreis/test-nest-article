@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import path from 'path';
 import type { DataSourceOptions } from 'typeorm';
 

@@ -11,13 +11,11 @@ export class CreateUsersTable1761540621309 implements MigrationInterface {
         role ENUM('admin', 'editor', 'reader') NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      );
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
-      DROP TABLE IF EXISTS users;
-    `);
+    await queryRunner.query(`DROP TABLE IF EXISTS users;`);
   }
 }
