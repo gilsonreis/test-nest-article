@@ -20,6 +20,27 @@ export class TypeormUsersRepository implements UsersRepository {
     return this.repo.save(entity);
   }
 
+  async findById(id: number): Promise<UserEntity | null> {
+    return this.repo.findOne({ where: { id } });
+  }
+
+  async update(
+    id: number,
+    changes: Partial<Pick<UserEntity, 'name' | 'email' | 'password' | 'role'>>,
+  ): Promise<UserEntity> {
+    const existing = await this.repo.findOne({ where: { id } });
+    if (!existing) {
+      // O use-case deve tratar NotFound; aqui lançamos para evitar salvar inexistente
+      throw new Error('User not found');
+    }
+    const merged = this.repo.merge(existing, changes);
+    return this.repo.save(merged);
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.repo.delete(id);
+  }
+
   async findMany(params: {
     search?: string;
     page: number;

@@ -7,12 +7,27 @@ jest.mock('bcrypt', () => ({
   hash: jest.fn(),
 }));
 import * as bcrypt from 'bcrypt';
+import { UserEntity } from 'src/app/users/entities/user.entity';
 
 describe('RegisterUseCase', () => {
   const makeRepo = (existing?: any): UsersRepository => ({
     findByEmail: jest.fn().mockResolvedValue(existing ?? null),
     create: jest.fn(),
     findMany: jest.fn(),
+    findById: function (id: number): Promise<UserEntity | null> {
+      throw new Error('Function not implemented.');
+    },
+    update: function (
+      id: number,
+      changes: Partial<
+        Pick<UserEntity, 'name' | 'email' | 'password' | 'role'>
+      >,
+    ): Promise<UserEntity> {
+      throw new Error('Function not implemented.');
+    },
+    delete: function (id: number): Promise<void> {
+      throw new Error('Function not implemented.');
+    },
   });
 
   beforeEach(() => {

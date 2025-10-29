@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { TypeormUsersRepository } from './typeorm-users.repository';
+import { TypeormUsersRepository } from '../../../../src/app/users/repositories/typeorm-users.repository';
 import type { Repository } from 'typeorm';
-import type { UserEntity } from '../entities/user.entity';
+import type { UserEntity } from '../../../../src/app/users/entities/user.entity';
 
 function makeQB() {
   const calls: any = {
@@ -46,9 +46,7 @@ describe('TypeormUsersRepository.findMany', () => {
     } as unknown as Repository<UserEntity>);
 
     await repo.findMany({ search: 'admin', page: 1, perPage: 10 });
-    // Primeiro where com name/email
     expect(qb.calls.where[0][0]).toContain('u.name LIKE');
-    // OR por role exato
     expect(qb.calls.orWhere.some(([sql]) => sql === 'u.role = :role')).toBe(true);
 
     const qb2 = makeQB();
@@ -57,9 +55,7 @@ describe('TypeormUsersRepository.findMany', () => {
     } as unknown as Repository<UserEntity>);
     await repo2.findMany({ search: 'joao', page: 2, perPage: 5 });
 
-    // OR por role LIKE quando não é role conhecida
     expect(qb2.calls.orWhere.some(([sql]) => sql === 'u.role LIKE :q')).toBe(true);
-    // Paginação aplicada
     expect(qb2.calls.skip[0][0]).toBe((2 - 1) * 5);
     expect(qb2.calls.take[0][0]).toBe(5);
   });

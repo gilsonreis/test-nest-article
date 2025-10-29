@@ -5,12 +5,12 @@ import { ListUsersResponse } from '../dto/output/list-users.response';
 import { JwtAuthGuard } from '../../commons/guards/jwt-auth.guard';
 
 @Controller('users')
-export class UsersController {
-  constructor(private readonly listUsersUseCase: ListUsersUseCase) {}
+export class ListUsersAction {
+  constructor(private readonly useCase: ListUsersUseCase) {}
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async list(@Query() query: ListUsersQueryDto): Promise<ListUsersResponse> {
-    return this.listUsersUseCase.execute(query);
+  async execute(@Query() query: ListUsersQueryDto): Promise<ListUsersResponse> {
+    return this.useCase.execute(query);
   }
 }

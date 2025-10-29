@@ -9,6 +9,7 @@ jest.mock('bcrypt', () => ({
   compare: jest.fn(),
 }));
 import * as bcrypt from 'bcrypt';
+import { UserEntity } from 'src/app/users/entities/user.entity';
 
 describe('LoginUseCase', () => {
   const jwt = { signAsync: jest.fn() } as unknown as JwtService;
@@ -17,6 +18,20 @@ describe('LoginUseCase', () => {
     findByEmail: jest.fn().mockResolvedValue(user ?? null),
     create: jest.fn(),
     findMany: jest.fn(),
+    findById: function (id: number): Promise<UserEntity | null> {
+      throw new Error('Function not implemented.');
+    },
+    update: function (
+      id: number,
+      changes: Partial<
+        Pick<UserEntity, 'name' | 'email' | 'password' | 'role'>
+      >,
+    ): Promise<UserEntity> {
+      throw new Error('Function not implemented.');
+    },
+    delete: function (id: number): Promise<void> {
+      throw new Error('Function not implemented.');
+    },
   });
 
   beforeEach(() => {
