@@ -3,13 +3,16 @@ import { CreateUserDto } from '../dto/input/create-user.dto';
 import { CreateUserUseCase } from '../use-cases/create-user.use-case';
 import { UserResponse } from '../dto/output/user.response';
 import { JwtAuthGuard } from '../../commons/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../commons/guards/permissions.guard';
+import { RequirePermissions } from '../../commons/decorators/require-permissions.decorator';
 
 @Controller('users')
 export class CreateUserAction {
   constructor(private readonly useCase: CreateUserUseCase) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('users:create')
   async execute(@Body() dto: CreateUserDto): Promise<UserResponse> {
     return this.useCase.execute({
       name: dto.name,
