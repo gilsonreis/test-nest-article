@@ -15,7 +15,7 @@ import { RegisterUseCase } from './use-cases/register.use-case';
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_SECRET') ?? 'dev-secret',
         signOptions: {
-          expiresIn: config.get<string>('JWT_EXPIRATION') ?? '1h',
+          expiresIn: Number(config.get<string>('JWT_EXPIRATION') ?? 3600),
         },
       }),
     }),

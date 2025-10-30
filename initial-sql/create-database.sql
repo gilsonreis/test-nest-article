@@ -1,1 +1,0 @@
-create database articles_db;

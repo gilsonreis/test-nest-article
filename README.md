@@ -1,98 +1,182 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Test News API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API construída com NestJS e MySQL, organizada em módulos de autenticação, usuários e artigos, com autorização baseada em permissões e documentação via Swagger.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Visão Geral
 
-## Description
+- Framework: NestJS 11 (Node 20)
+- Banco: MySQL 8
+- ORM: TypeORM 0.3
+- Autenticação: JWT Bearer
+- Autorização: Permissions Guard + RequirePermissions
+- Documentação: Swagger (`/docs`)
+- Testes: Jest (unitários e e2e)
+- Docker: `Dockerfile` + `docker-compose.yml`
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Arquitetura
 
-## Project setup
+- Módulos
+  - `auth`: login e registro.
+  - `users`: CRUD de usuários.
+  - `articles`: CRUD de artigos e listagem por usuário.
+  - `permissions`: guard e decorator para autorização por permissão.
+  - `commons`: helpers, config TypeORM, guards JWT.
 
-```bash
-$ npm install
-```
+- Padrão de organização
+  - Actions (Controllers): `app/<modulo>/actions/*.action.ts`
+  - UseCases (Regras de negócio): `app/<modulo>/use-cases/*.use-case.ts`
+  - DTOs: `app/<modulo>/dto/input|output/*.ts`
+  - Repositórios (Interfaces e implementações): `app/<modulo>/repositories/*.ts`
 
-## Compile and run the project
+- Autorização por permissões
+  - `RequirePermissions('...')`: define metadados exigidos na rota.
+  - `PermissionsGuard`: valida permissões do usuário conforme o papel (role).
 
-```bash
-# development
-$ npm run start
+- Justificativa e benefícios da arquitetura
 
-# watch mode
-$ npm run start:dev
+  - SOLID
+    - Single Responsibility Principle (SRP): 
+      - Actions cuidam de protocolo/HTTP e validação superficial da requisição.
+      - UseCases concentram a lógica de negócio, sem dependências de framework.
+      - Repositories isolam acesso a dados/persistência.
+      - Resultado: cada classe faz uma coisa bem definida e é mais fácil de testar e evoluir.
+    - Open/Closed Principle (OCP):
+      - Novos endpoints e regras são adicionados criando novas Actions/UseCases e implementações de Repositories, sem modificar as existentes.
+      - Amplia funcionalidades sem quebrar o que já está funcionando.
+    - Dependency Inversion Principle (DIP):
+      - UseCases dependem de abstrações (`Repositories`) e não de implementações concretas (TypeORM).
+      - Facilita troca de tecnologia de persistência e simplifica testes via mocks.
 
-# production mode
-$ npm run start:prod
-```
+  - Clean Architecture
+    - Independência de detalhes:
+      - UseCases são o núcleo da aplicação e não dependem de Nest, Express ou TypeORM.
+      - Actions (controllers) e TypeORM são “detalhes” de implementação, plugados nas bordas.
+    - Boundaries bem definidos:
+      - Fluxo: `Action` → `UseCase` → `Repository (interface)` → `Repository TypeORM (implementação)`.
+      - Depêndencias sempre apontam para dentro (para as regras), protegendo a regra de negócio.
+    - Facilidade de teste:
+      - UseCases testados com mocks de `Repositories`.
+      - Actions testadas isolando transporte (HTTP) e guards/autorização.
 
-## Run tests
+  - Object Calisthenics
+    - Pequenas classes e métodos focados (baixa complexidade por unidade).
+    - Alta coesão, baixo acoplamento:
+      - Cada Action trata apenas um endpoint.
+      - Cada UseCase resolve um caso de uso específico.
+      - Repositories expõem operações pequenas e explícitas.
+    - Composição sobre herança:
+      - Preferência por injeção de dependências (DI) e instâncias colaboradoras.
+    - Nomes significativos e objetos pequenos:
+      - DTOs claros, separação entre entrada e saída.
+      - Evita “God classes” e facilita refatoração incremental.
 
-```bash
-# unit tests
-$ npm run test
+  - Benefícios práticos
+    - Testabilidade superior: mocks simples, cobertura alta sem configurar infraestrutura.
+    - Manutenibilidade e escalabilidade: adicionar regras/endpoints com impacto mínimo.
+    - Portabilidade de infraestrutura: possível trocar MySQL/TypeORM sem tocar na regra de negócio.
+    - Segurança consistente: autorização via guard e decorator, aplicado sistematicamente nas Actions.
 
-# e2e tests
-$ npm run test:e2e
+## Funcionalidades
 
-# test coverage
-$ npm run test:cov
-```
+- Auth
+  - `POST /auth/login`: retorna `accessToken` (JWT). Use `Authorization: Bearer <token>` nas rotas protegidas.
+  - `POST /auth/register`: cria novo usuário (admin/editor/reader).
+- Users
+  - `GET /users`: lista usuários com paginação e `search`.
+  - `GET /users/{id}`: detalha usuário.
+  - `POST /users`: cria usuário.
+  - `PUT /users/{id}`: atualiza usuário.
+  - `DELETE /users/{id}`: remove usuário.
+- Articles
+  - `GET /articles`: lista artigos com paginação e `search` (LIKE em título e FULLTEXT em conteúdo).
+  - `GET /articles/{id}`: detalha artigo.
+  - `POST /articles`: cria artigo.
+  - `PUT /articles/{id}`: atualiza artigo.
+  - `DELETE /articles/{id}`: remove artigo.
+  - `GET /users/{userId}/articles`: lista artigos pertencentes ao usuário.
+- Paginação
+  - Parâmetros: `page` e `_perPage`.
+  - Padrões: `page=1`, `_perPage=15`.
+- Permissões seedadas
+  - `articles:create`, `articles:read`, `articles:update`, `articles:delete`, `articles:read_by_user`.
+- Regras por papel (seed)
+  - `admin`: todas permissões de artigos.
+  - `editor`: criar, ler, atualizar e ler por usuário.
+  - `reader`: ler e ler por usuário.
+- Usuários seedados
+  - Admin: `admin@example.com` / `secret123`
+  - Editor: `editor@example.com` / `secret123`
+  - Reader: `reader@example.com` / `secret123`
 
-## Deployment
+## Instalação (Docker)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+1) Copie o arquivo de ambiente:
+- `cp .env.dist .env`
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+2) Ajuste variáveis de ambiente conforme necessário:
+- `PORT=3000`
+- `DB_HOST=db` (dentro do container; para IDE use `localhost`)
+- `DB_PORT=3306`
+- `DB_USERNAME=user`
+- `DB_PASSWORD=secret`
+- `DB_DATABASE=articles_db`
+- `JWT_SECRET=dev-secret`
+- `JWT_EXPIRATION=86400` (em segundos; manter valor numérico)
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+3) Suba os containers:
+- `docker compose up -d --build`
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+4) Conecte à base (IDE externa, exemplo: DBeaver, TablePlus, MySQL Workbench)
+- Host: `localhost`
+- Porta: `3306`
+- Usuário: `user`
+- Senha: `secret`
+- Database: `articles_db`
 
-## Resources
+Obs.: Dentro do container `app`, o host do banco é `db` (rede interna do Docker).
 
-Check out a few resources that may come in handy when working with NestJS:
+## Migrations e Seeds (dentro do container)
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+1) Acesse o container da aplicação:
+- `docker compose exec app sh`
 
-## Support
+2) Execute as migrations:
+- `npm run migration:run`
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+3) Execute os seeds:
+- `npm run db:seed`
 
-## Stay in touch
+Opcionalmente, pode rodar os comandos direto no container do docker, adicionando `docker compose exec app` antes de cada comando. 
+- `docker compose exec app npm run migration:run`
+- `docker compose exec app npm run db:seed`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Ordem de seeds (automática via `src/database/seeds/index.ts`):
+- Permissions → Roles → Permissions por Role → Users → Articles
 
-## License
+## Testes
+- Para executar os testes, execute no terminal:
+  - `docker compose exec app npm test`
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Swagger
+
+- Acesse: `http://localhost:3000/docs`
+- Agrupamento por tags:
+  - `Auth`
+  - `User`
+  - `Article`
+- Autenticação no Swagger:
+  - Clique em “Authorize”
+  - Informe `Bearer <token>` (faça login em `POST /auth/login` para obter o token).
+- Observação: a UI está configurada com `persistAuthorization` ligado.
+
+## Coleção Postman
+
+- Há uma coleção de endpoints para Postman prevista na raiz do projeto (arquivo `.json` de coleção). Importe-a no Postman (menu “Import”) para testar os endpoints rapidamente.
+- Caso não encontre a coleção, você pode usar o Swagger para explorar os endpoints e montar sua própria collection.
+
+## Observações e Dicas
+
+- JWT: `JWT_EXPIRATION` deve ser numérico (segundos). Ex.: `86400`.
+- Banco: se quiser limpar dados de desenvolvimento, pare os containers e remova o volume local do MySQL mapeado em `docker-compose.yml`.
+- Query de artigos: utiliza `LIKE` em título e FULLTEXT (`MATCH ... AGAINST`) em conteúdo.
+- Padrão Actions + UseCases: promove testabilidade e evolução sem acoplamento.

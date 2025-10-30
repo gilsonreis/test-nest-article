@@ -5,8 +5,10 @@ import { LoginResponse } from '../dto/output/login.response';
 import { RegisterDto } from '../dto/input/register.dto';
 import { RegisterUseCase } from '../use-cases/register.use-case';
 import { RegisterResponse } from '../dto/output/register.response';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(
     private readonly loginUseCase: LoginUseCase,

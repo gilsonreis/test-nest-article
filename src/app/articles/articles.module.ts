@@ -28,7 +28,9 @@ import { GetUserArticlesAction } from './actions/get-user-articles.action';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_SECRET') ?? 'dev-secret',
-        signOptions: { expiresIn: '1h' },
+        signOptions: {
+          expiresIn: Number(config.get<string>('JWT_EXPIRATION') ?? 3600),
+        },
       }),
     }),
   ],

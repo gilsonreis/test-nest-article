@@ -4,8 +4,11 @@ import { PermissionsGuard } from '../../commons/guards/permissions.guard';
 import { RequirePermissions } from '../../commons/decorators/require-permissions.decorator';
 import { ListUserArticlesUseCase } from '../use-cases/list-user-articles.use-case';
 import type { ListArticlesResponse } from '../dto/output/list-articles.response';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('users')
+@ApiTags('User') // antes estava 'Users'
+@ApiBearerAuth()
 export class GetUserArticlesAction {
   constructor(private readonly useCase: ListUserArticlesUseCase) {}
 
