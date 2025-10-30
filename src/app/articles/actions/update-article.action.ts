@@ -1,22 +1,22 @@
 import { Body, Controller, Param, Put, UseGuards } from '@nestjs/common';
-import { UpdateUserDto } from '../dto/input/update-user.dto';
-import { UpdateUserUseCase } from '../use-cases/update-user.use-case';
-import { UserResponse } from '../dto/output/user.response';
+import { UpdateArticleDto } from '../dto/input/update-article.dto';
+import { UpdateArticleUseCase } from '../use-cases/update-article.use-case';
+import { ArticleResponse } from '../dto/output/article.response';
 import { JwtAuthGuard } from '../../commons/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../commons/guards/permissions.guard';
 import { RequirePermissions } from '../../commons/decorators/require-permissions.decorator';
 
-@Controller('users')
-export class UpdateUserAction {
-  constructor(private readonly useCase: UpdateUserUseCase) {}
+@Controller('articles')
+export class UpdateArticleAction {
+  constructor(private readonly useCase: UpdateArticleUseCase) {}
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions('users:update')
+  @RequirePermissions('articles:update')
   async execute(
     @Param('id') id: string,
-    @Body() dto: UpdateUserDto,
-  ): Promise<UserResponse> {
+    @Body() dto: UpdateArticleDto,
+  ): Promise<ArticleResponse> {
     return this.useCase.execute(Number(id), dto);
   }
 }

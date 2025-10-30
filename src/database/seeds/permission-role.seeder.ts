@@ -21,20 +21,23 @@ export default class PermissionRoleSeeder implements Seeder {
     const pRead = permId('articles:read');
     const pUpdate = permId('articles:update');
     const pDelete = permId('articles:delete');
+    const pReadByUser = permId('articles:read_by_user');
 
     const pairs: Array<[number, number]> = [];
     if (admin != null) {
-      for (const pid of [pCreate, pRead, pUpdate, pDelete]) {
+      for (const pid of [pCreate, pRead, pUpdate, pDelete, pReadByUser]) {
         if (pid != null) pairs.push([pid, admin]);
       }
     }
     if (editor != null) {
-      for (const pid of [pCreate, pRead, pUpdate]) {
+      for (const pid of [pCreate, pRead, pUpdate, pReadByUser]) {
         if (pid != null) pairs.push([pid, editor]);
       }
     }
-    if (reader != null && pRead != null) {
-      pairs.push([pRead, reader]);
+    if (reader != null) {
+      for (const pid of [pRead, pReadByUser]) {
+        if (pid != null) pairs.push([pid, reader]);
+      }
     }
 
     for (const [permission_id, role_id] of pairs) {

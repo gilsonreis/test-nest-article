@@ -5,12 +5,19 @@ import PermissionSeeder from './permission.seeder';
 import RoleSeeder from './role.seeder';
 import PermissionRoleSeeder from './permission-role.seeder';
 import UserSeeder from './user.seeder';
+import ArticleSeeder from './article.seeder';
 
 void (async () => {
   await dataSource.initialize();
   try {
     await runSeeders(dataSource, {
-      seeds: [PermissionSeeder, RoleSeeder, PermissionRoleSeeder, UserSeeder],
+      seeds: [
+        PermissionSeeder,
+        RoleSeeder,
+        PermissionRoleSeeder,
+        UserSeeder,
+        ArticleSeeder,
+      ],
     });
     console.log('Seeds concluídos.');
   } catch (err) {

@@ -6,6 +6,7 @@ import { USERS_REPOSITORY } from './repositories/users.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from '../commons/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../commons/guards/permissions.guard';
 import { ListUsersUseCase } from './use-cases/list-users.use-case';
 import { CreateUserUseCase } from './use-cases/create-user.use-case';
 import { GetUserUseCase } from './use-cases/get-user.use-case';
@@ -40,6 +41,7 @@ import { DeleteUserAction } from './actions/delete-user.action';
     UpdateUserUseCase,
     DeleteUserUseCase,
     JwtAuthGuard,
+    PermissionsGuard,
   ],
   controllers: [
     ListUsersAction,
